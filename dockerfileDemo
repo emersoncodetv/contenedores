@@ -1,0 +1,292 @@
+####################################################################
+################## Docker File  del video mongodb ##################
+####################################################################
+
+#######
+#######
+#######
+####### MONGODB
+#######
+#######
+#######
+####################################################################
+# nano mongodb.conf 
+##
+### Basic Defaults
+##
+dbpath = /var/lib/mongo
+smallfiles = true
+nohttpinterface = true
+noprealloc = true
+
+####################################################################
+# cat mongo.repo 
+[mongodb]
+name=MongoDB Repository
+baseurl=http://downloads-distro.mongodb.org/repo/redhat/os/x86_64/
+gpgcheck=0
+enabled=1
+
+
+####################################################################
+## Dockerfile
+## nano Dockerfile
+#
+# MongoDB Dockerfile
+#
+# https://github.com/dockerfile/mongodb
+#
+
+# Pull base image.
+FROM dockerfile/ubuntu
+
+# Install MongoDB.
+RUN \
+  apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10 && \
+  echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' > /etc/apt/sources.list.d/mongodb.list && \
+  apt-get update && \
+  apt-get install -y mongodb-org && \
+  rm -rf /var/lib/apt/lists/*
+
+# Define mountable directories.
+VOLUME ["/data/db"]
+
+# Define working directory.
+WORKDIR /data
+
+# Define default command.
+CMD ["mongod"]
+
+# Expose ports.
+#   - 27017: process
+#   - 28017: http
+EXPOSE 27017
+EXPOSE 28017
+
+
+#######
+#######
+#######
+####### RockMongo
+#######
+#######
+#######
+####################################################################
+# nano Dockerfile 
+FROM richxsl/rhel7
+
+MAINTAINER Derek Carr <decarr@redhat.com>
+
+# update, install required, clean
+RUN yum -y update && \
+    yum install -y httpd php php-devel wget php-pear unzip gcc-c++ \
+    make findutils file && yum clean all
+
+# update pecl channels
+RUN pecl update-channels
+
+# install mongo drivers without Cyrus SASL (MongoDB Enterprise Authentication)
+RUN printf "no\n" | pecl install mongo && cd /etc && echo "extension=mongo.so" >> /etc/php.d/mongo.ini
+
+# install RockMongo
+RUN cd /root && wget -O rockmongo-1.1.5.zip http://rockmongo.com/downloads/go?id=12 && \
+    unzip rockmongo-1.1.5.zip -d /var/www/ && rm -R /var/www/html && \
+    mv /var/www/rockmongo/ /var/www/html && \
+    sed -i 's/auth"] = true/auth"] = false/' /var/www/html/config.php
+
+
+# increase php upload size 
+RUN sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 10M/g' /etc/php.ini && \
+    sed -i 's/post_max_size = 2M/post_max_size = 10M/g' /etc/php.ini
+
+# expose php information
+RUN echo '<?php phpInfo(); ?>' > /var/www/html/info.php
+
+# Add the php mongo driver
+ADD ./epel.repo /etc/yum.repos.d/epel.repo
+RUN yum -y install php-pecl-mongo --nogpgcheck && yum clean all
+
+# Add the start.sh and mark it executable
+ADD ./start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Expose ports
+EXPOSE 80
+
+# CMD ["/usr/sbin/httpd", "-D", "FOREGROUND"]
+CMD ["/start.sh"]
+
+####################################################################
+# nano epel.repo 
+[epel]
+name=Extra Packages for Enterprise Linux 7 - $basearch
+#baseurl=http://download.fedoraproject.org/pub/epel/7/$basearch
+mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch
+failovermethod=priority
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
+
+[epel-debuginfo]
+name=Extra Packages for Enterprise Linux 7 - $basearch - Debug
+#baseurl=http://download.fedoraproject.org/pub/epel/7/$basearch/debug
+mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=epel-debug-7&arch=$basearch
+failovermethod=priority
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
+gpgcheck=1
+
+[epel-source]
+name=Extra Packages for Enterprise Linux 7 - $basearch - Source
+#baseurl=http://download.fedoraproject.org/pub/epel/7/SRPMS
+mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=epel-source-7&arch=$basearch
+failovermethod=priority
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
+gpgcheck=1
+
+####################################################################
+# nano start.sh 
+#!/bin/bash
+
+# Tell the rockmongo service how to get to the MongoDB container
+# the SERVICE_HOST var is provided by kubernetes
+sed -i "s/mongo_host\"] = \"127.0.0.1\"/mongo_host\"] = \"$SERVICE_HOST\"/" /var/www/html/config.php
+
+# Start the Apache server
+/usr/sbin/httpd -D FOREGROUND
+
+
+Steps:
+
+1. build images
+2. yum install registry
+3. retag images
+docker tag mongodb localhost:5000/mongodb
+docker tag rockmongo localhost:5000/rockmongo
+4. push images
+docker push localhost:5000/mongodb
+docker push localhost:5000/rockmongo
+5. launch pod
+kubecfg -c multi-container.json create pods
+6. test access.
+
+
+####################################################################
+################## Docker File  de github ##################
+####################################################################
+https://github.com/lsm5/rhel-dockerfiles/tree/master/mongodb
+
+https://gist.github.com/scollier/8d56f8f82e4e18aebbb9
+
+
+
+####################################################################
+mongodb.conf
+##
+### Basic Defaults
+##
+
+# bind_ip = 127.0.0.1
+port = 27017
+# logpath = /mongo/logs/mongodb.log
+dbpath =/var/lib/mongo
+journal = true
+auth = false
+rest = true
+smallfiles = true
+httpinterface = true
+
+####################################################################
+mongo.repo
+## 
+## 
+## 
+
+[mongodb]
+name=MongoDB Repository
+baseurl=http://downloads-distro.mongodb.org/repo/redhat/os/x86_64/
+gpgcheck=0
+enabled=1
+
+####################################################################
+Dockerfile
+## 
+## 
+## 
+
+FROM registry.access.redhat.com/redhat/rhel7beta
+MAINTAINER scollier <scollier@redhat.com>
+
+# Update the system
+RUN yum -y update; yum clean all
+
+# Add repo files
+ADD ./mongo.repo /etc/yum.repos.d/
+
+# Install MongoDB and extras
+RUN yum -y install mongo-10gen-server mongo-10gen; yum clean all
+RUN yum -y install procps-ng iptables; yum clean all
+
+ADD ./mongod.conf /etc/
+
+# Expose ports
+EXPOSE 27017 28017
+
+# USER mongod
+
+CMD ["/usr/bin/mongod", "-f", "/etc/mongod.conf"]
+
+####################################################################
+README.md
+## 
+##
+##
+dockerfiles-rhel-mongodb
+========================
+
+Red Hat Enterprise Linux dockerfile for MongoDB
+
+Tested on Docker 0.10.0-dev
+
+Get the version of Docker
+
+    # docker version
+
+To build:
+
+Copy the sources down -
+
+    # docker build -rm -t <username>/mongo .
+
+To run:
+
+    # docker run -d -p 27017 <username>/mongo
+
+Watch for the database to initialize and start listening (using the container ID from "docker run":
+
+```
+# docker logs 3a2aaa5b803f597732b18
+<snip>
+Tue Dec 17 20:34:42.655 [initandlisten] command local.$cmd command: { create: "startup_log", size: 10485760, capped: true } ntoreturn:1 keyUpdates:0  reslen:37 360ms
+Tue Dec 17 20:34:42.661 [websvr] admin web console waiting for connections on port 28017
+Tue Dec 17 20:34:42.725 [initandlisten] waiting for connections on port 27017
+```
+
+Get the port that the container is listening on:
+
+```
+# docker ps
+CONTAINER ID        IMAGE                   COMMAND             CREATED             STATUS              PORTS                      NAMES
+c8fc42d19fd3        <username>/mongo:latest   /usr/bin/mongod     4 minutes ago       Up 4 minutes        0.0.0.0:49158->27017/tcp   ecstatic_thompson   
+```
+
+To test:
+
+```
+# mongo --host localhost --port 49158
+
+MongoDB shell version: 2.4.6
+connecting to: 127.0.0.1:49158/test
+> 
+```

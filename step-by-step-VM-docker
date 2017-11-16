@@ -1,0 +1,282 @@
+#############################################################
+## Instalar VNC
+#############################################################
+
+$ su -
+
+# yum install tigervnc-server
+
+# su - oracle
+
+$ vncpasswd
+
+$ vncserver :2
+
+$ vncserver -list
+
+# su -
+
+# cp /lib/systemd/system/vncserver@.service  /etc/systemd/system/vncserver@:2.service
+
+# nano /etc/systemd/system/vncserver@\:2.service
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ Reemplazar
+++ Old text 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+[Unit]
+Description=Remote desktop service (VNC)
+After=syslog.target network.target
+
+[Service]
+Type=forking
+User=<USER>
+
+# Clean any existing files in /tmp/.X11-unix environment
+ExecStartPre=-/usr/bin/vncserver -kill %i
+ExecStart=/usr/bin/vncserver %i
+PIDFile=/home/<USER>/.vnc/%H%i.pid
+ExecStop=-/usr/bin/vncserver -kill %i
+
+[Install]
+WantedBy=multi-user.target
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ New text - Reemplazar <USER> por el usuario que va a ser usado para el inicio remoto
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+[Unit]
+Description=Remote desktop service (VNC)
+After=syslog.target network.target
+
+[Service]
+Type=forking
+ExecStartPre=/bin/sh -c '/usr/bin/vncserver -kill %i > /dev/null 2>&1 || :'
+ExecStart=/sbin/runuser -l <USER> -c "/usr/bin/vncserver %i -geometry 1280x1024"
+PIDFile=/home/<USER>/.vnc/%H%i.pid
+ExecStop=/bin/sh -c '/usr/bin/vncserver -kill %i > /dev/null 2>&1 || :'
+
+[Install]
+WantedBy=multi-user.target
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# systemctl daemon-reload
+
+# systemctl start vncserver@:2
+
+# systemctl status vncserver@:2
+
+# systemctl enable vncserver@:2
+
+# reboot
+
+$ ss -tulpn| grep vnc
+
+#############################################################
+## Instalar ngrok 
+#############################################################
+
+# wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+
+# unzip ngrok-stable-linux-amd64.zip
+
+# mv ngrok /opt/
+
+# /opt/ngrok http 7777
+
+# Ctrl + C
+
+#############################################################
+## Instalar Cockpit
+#############################################################
+
+$ su -
+
+# yum install cockpit 
+
+# nano /etc/yum.repos.d/centos.repo
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ Agregar lo siguiente 
+http://cutler.io/2012/07/installing-centos-packages-on-red-hat-enterprise-linux/
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+[centos]
+name=CentOS $releasever - $basearch
+baseurl=http://ftp.heanet.ie/pub/centos/7/os/$basearch/
+enabled=1
+gpgcheck=0
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# yum repolist
+
+# yum update
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ cockpit-docker
+++ http://rpm.pbone.net/index.php3?stat=3&search=cockpit-docker&srodzaj=3&dist[]=94
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# wget ftp://mirror.switch.ch/pool/4/mirror/centos/7.4.1708/extras/x86_64/Packages/cockpit-docker-151-1.el7.centos.x86_64.rpm
+# rpm -ivh cockpit-docker-151-1.el7.centos.x86_64.rpm
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ libssh
+++ https://www.rpmfind.net/linux/rpm2html/search.php?query=libssh
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# wget ftp://195.220.108.108/linux/fedora/linux/development/rawhide/Everything/x86_64/os/Packages/l/libssh-0.7.5-3.fc27.x86_64.rpm
+# yum localinstall libssh-0.7.5-3.fc27.x86_64.rpm
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ cockpit-dashboard 
+++ http://rpm.pbone.net/index.php3?stat=3&search=cockpit-dashboard&srodzaj=3&dist[]=94
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# wget ftp://mirror.switch.ch/pool/4/mirror/centos/7.4.1708/extras/x86_64/Packages/cockpit-dashboard-151-1.el7.centos.x86_64.rpm
+# yum localinstall cockpit-dashboard-151-1.el7.centos.x86_64.rpm
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ si el firewalld se esta ejecutando
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# firewall-cmd --add-port=9090/tcp
+
+# firewall-cmd--permanent --add-port=9090/tcp
+
+# systemctl enable cockpit.socket
+
+# systemctl start cockpit.socket
+
+# systemctl start cockpit
+
+# systemctl restart cockpit
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ Abrir Firefox http://localhost:9090/
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#############################################################
+## Firewall Off 
+## http://bytefreaks.net/gnulinux/how-to-startstop-or-enabledisable-firewalld-on-centos-7
+#############################################################
+
+systemctl disable firewalld
+
+systemctl stop firewalld
+
+systemctl status firewalld
+
+#############################################################
+## SELinux - Tener en cuenta
+#############################################################
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ Security-Enhanced Linux: Un kernel de Linux que integra SELinux impone políticas de control de acceso obligatorias que confinan los programas de usuario y los servidores del sistema, el acceso a archivos y recursos de red.
+++ To put SELinux into enforcing mode:
+++ sestatus | grep -i mode
+++ setenforce 1
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ To put SELinux into permissive mode:
+++ Un bug en SELinux causa que los archivos no puedan ser leidos con un montaje de enlace con el contenedor.
+++ Asegurece que el SELinux este en permissive mode
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# setenforce 0
+
+# sestatus | grep -i mode
+
+#############################################################
+## Docker compose installation Oracle Linux 
+#############################################################
+
+# curl -L https://github.com/docker/compose/releases/download/1.17.1/docker-compose-`uname -s`-`uname -m` > /tmp/docker-compose
+
+# cp /tmp/docker-compose /usr/bin/docker-compose
+
+# chmod +x /usr/bin/docker-compose
+
+#############################################################
+## Instalación de Docker en Oracle Linux 
+#############################################################
+
+# yum install -y yum-utils 
+
+# yum-config-manager --enable ol7_addons
+
+# yum-config-manager --enable public_ol7_addons
+
+# yum repolist all
+
+# yum -y install docker-engine
+
+# systemctl enable docker
+
+# systemctl start docker
+
+# /usr/sbin/usermod -aG docker oracle
+
+# docker login container-registry.oracle.com
+
+
+
+#############################################################
+## Instalar la última versión de Firefox 
+#############################################################
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ Descargar Firefox de la pagina oficial
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# cd /home/oracle/Downloads
+
+# tar -xjvf firefox-XX.X.tar.bz2
+
+# cp -r firefox /opt/
+
+# ln -sf /opt/firefox/firefox /usr/bin/firefox
+
+#############################################################
+## Instalar nano, git, nmap y Actualizar el equipo
+#############################################################
+
+$ su -c 'yum update'
+
+# su -
+
+# yum install nano
+
+# yum install git
+
+# yum install nmap -y
+
+# nmap
+
+# nmap -sV localhost
+
+#############################################################
+## Virtualbox Guest additions  
+#############################################################
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ Cambiar de usuario a root
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+$ su -
+
+# uname -r
+
+# yum install kernel-uek-devel-`uname -r`
+
+# KERN_DIR=/usr/src/kernels/`uname -r`
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ Montar la imagen de "Guest additions CD image"
+++ Click en RUN
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# reboot

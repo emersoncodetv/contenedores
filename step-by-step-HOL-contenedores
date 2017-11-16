@@ -1,0 +1,599 @@
+####################################################################
+############ changing Docker networking
+####################################################################
+
+# su -
+
+# nano /etc/sysconfig/docker
+
+----------------------------------------------
+Replace Old for New (para no usa interfaces de red)
+----------------------------------------------
+OPTIONS='--selinux-enabled'
+----------------------------------------------
+# OPTIONS='--selinux-enabled'
+OPTIONS='--selinux-enabled -b=none'
+----------------------------------------------
+
+# systemctl restart docker
+
+# exit
+
+$ docker run -it oraclelinux bash
+
+# ip a 
+
+==============================================
+== NOTA: La interfaz etc0 a desaparecido
+==============================================
+
+# exit
+
+$ docker run -it --net=host oraclelinux bash
+
+==============================================
+== NOTA: Puedo activar la red de forma individual en un host
+==============================================
+
+# exit
+
+####################################################################
+############ Check default Docker networking
+####################################################################
+
+$ ip a
+
+$ ifconfig docker0
+
+$ docker run -it oraclelinux bash
+
+# ip a
+
+# exit
+
+####################################################################
+ATOMIC IMAGES
+https://medium.com/travis-on-docker/microcontainers-tiny-portable-docker-containers-1507e3bf8688
+####################################################################
+
+
+++ Contar el numero de packetes que tiene una imagen
+
+$ rpm -qa | wc
+
+$ rpm -qa | less
+
+++ lista los comandos de la shell que se permiten y lista las configuraciones de los paquetes
+
+$ ls /dev /etc
+
+++ Muestra la documentacion de man y sus relaciones con otros paquetes
+
+$ ls /usr/share/man/* | less
+
+++ ahora vamos a provar los mismo comandos pero dentro de un contenedor
+
+$ docker exec -i -t mongoRun /bin/bash
+
+# rpm -qa | wc
+
+# rpm -qa 
+
+# ls /dev /etc
+
+# ls /usr/share/man/* | less
+
+# type yum
+
+# exit
+
+####################################################################
+################## Dockerfile build images ##################
+####################################################################
+
+## Abrir el archivo dockerfileDemo 
+## Primero construimos la imagen mongodb 
+
+$ cd ~
+
+$ mkdir dockerFilesDemo
+
+$ cd dockerFilesDemo
+
+$ mkdir mongodb
+
+$ cd mongodb
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+http://dbaontap.com/2017/07/24/mongodb-docker-oracle-linux-slim/
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+nano Dockerfile
+
+FROM oraclelinux:7-slim
+
+ADD mongodb-org-3.4.repo /etc/yum.repos.d/
+RUN yum install -y mongodb-org
+RUN yum clean all
+RUN mkdir -p /data/db
+
+EXPOSE 27017
+
+CMD ["mongod"]
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+nano mongodb-org-3.4.repo
+
+[mongodb-org-3.4]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.4/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+$ cd /home/oracle/dockerFilesDemo/mongodb
+
+$ docker build --no-cache -t mongo .
+
+$ docker images
+
+$ cd ~
+
+$ mkdir data
+
+$ cd data
+
+$ docker run -d -p 27017:27017 --name mongoRun -v ~/data:/var/lib/mongodb mongo
+
+## https://www.thachmai.info/2015/04/30/running-mongodb-container/
+## Now, let's populate the fresh database with some data.
+## Connecting to your MongoDB container
+
+$ cd ~
+
+$ cd dockerFilesDemo
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+https://www.npmjs.com/package/admin-mongo
+https://rominirani.com/docker-tutorial-series-part-8-linking-containers-69a4e5bf50fb
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+git clone https://github.com/mrvautin/adminMongo.git && cd adminMongo
+
+$ nano Dockerfile
+
+$ docker build --no-cache -t admin-mongo .
+
+$ docker run -d -e PORT=1234 -p 1234:1234 -it --link mongoRun:mongo --name adminMongo admin-mongo 
+
+$ docker exec -i -t adminMongo /bin/bash
+
+$ docker exec -i -t adminMongo /bin/sh
+
+# ping mongo
+
+# exit
+
+# docker exec -i -t mongoRun /bin/bash
+
+# mongo
+
+# show databases
+
+****
+Abrimos el navegador en localhost:1234
+****
+Agregamos una conexion mongodb://mongo
+****
+Creamos una base de datos wkOracle
+****
+
+# show databases
+
+## Docker RUN vs CMD vs ENTRYPOINT
+## http://goinbigdata.com/docker-run-vs-cmd-vs-entrypoint/
+
+####################################################################
+################## Remover contenedores e imagenes ##################
+####################################################################
+
+## Uso del disco
+
+du -sh /var/lib/docker
+
+## Cuanto espacio hay disponible
+
+df -h /var/lib/docker
+
+## no puedes eliminar un conenedor que actualmente es en ejecucion 
+
+docker rm my_webserver_play
+
+docker stop my_webserver_play
+
+docker rm my_webserver_play
+
+## para eliminar varios contenedores 
+
+docker rm <CONTAINER ID> <CONTAINER ID> <CONTAINER ID> ...
+
+## para eliminar varias imagenes
+
+docker rmi <IMAGE ID> <IMAGE ID> <IMAGE ID> ...
+
+## para listar todos los ID se usa -q ya sea para imagenes o contenedores
+
+## Eliminar todos los contenedores que hay en el sistema
+
+docker rm -f $(docker ps -a -q)
+
+## Eliminar todas las imagenes que hay en el sistema
+
+docker rmi -f $(docker images -a -q)
+
+
+####################################################################
+################## Docker system and healthy ##################
+####################################################################
+
+## obtener informacion del paquete de docker 
+
+rpm -q docker-engine
+
+## Estado del servicio
+
+systemctl status docker.service
+
+## informacion de docker
+
+docker info
+
+## lista las versiones de cada componente de docker
+
+docker version 
+
+## muestra la informacion de los procesos de docker
+
+docker ps
+
+docker top <CONTAINER ID>
+
+## muestra los cambios en el filesystem despues que el contenedor a iniciado
+
+docker diff <CONTAINER ID>
+
+## muestar la historia de la construccion del contenedor
+
+docker images
+
+docker history <IMAGE ID>
+
+## mostrar el numero de contenedores corriendo en el sistema
+
+docker ps | wc -l
+
+## mostrar el numero de contenedores corriendo y detenidos en el sistema
+
+docker ps -a | wc -l
+
+## ver la informacion de los procesos per se
+
+docker top <CONTAINER ID> -x
+
+## docker events abre un listener para ver que ocurre dentro de docker
+
+## terminal 1
+
+docker events
+
+## terminal 2
+
+docker ps -a
+
+docker rm <CONTAINER ID>
+
+docker rmi hello-world
+
+## Ver lo que ocurrio en la terminal 1
+
+####################################################################
+################## tag an images y enviarlo a un local registry ##################
+####################################################################
+
+docker images
+
+docker tag fedora_whereisssh fedora_whereisssh:1.0
+
+docker images
+
+## Ver que los IMAGES ID son iguales
+
+docker tag fedora_whereisssh localhost:5000/my-fedora-whereisssh:1.0
+
+## enviar una imagen al local repository
+
+docker push localhost:5000/my-fedora-whereisssh:1.0
+
+http://localhost:5000/v2/_catalog
+
+## push una imagen al repositorio de docker
+## debes anteponer tu usuario de docker cloud
+
+## docker push emerballen/my-fedora-whereisssh:1.0
+
+
+####################################################################
+################## transporting images ##################
+####################################################################
+
+file my_fedora_whereisssh.tar 
+
+## mover el archivo a otro servidor 
+## Montar el tar en mis imagenes
+
+## Vamos a eliminar los contenedores e imagenes para simular un nuevo servidor
+
+docker rm <CONTAINER ID> # fedora_whereisssh
+
+docker rmi fedora_whereisssh
+
+## Cargemos el tar a nuestro a images
+
+docker load -i my_fedora_whereisssh.tar
+
+docker images
+
+docker run fedora_whereisssh
+
+
+
+####################################################################
+################## Save container to images ##################
+####################################################################
+
+docker run --name="my_whereis" -i -t fedora whereis ssh
+
+docker ps
+
+docker ps -a
+
+docker ps -l -a
+
+docker 	commit -m="whereis ssh on fedora base" \
+		-a="Tu nombre" <CONTAINER ID> fedora_whereisssh
+
+docker images | grep fedora_
+
+docker run -i -t fedora_whereisssh
+
+docker ps -l
+
+docker save -o my_fedora_whereisssh.tar fedora_whereisssh
+
+ls
+
+####################################################################
+################## Manipulando contenedores ##################
+####################################################################
+
+docker run 	-d -p 9091:9099 --name="my_webserver_play" \
+			-w /opt -v /var/web_data:/opt fedora:latest \
+			/usr/bin/python3.6 -m http.server 9099
+
+curl localhost:9091/test.txt
+
+docker ps
+
+docker run hello-world
+
+## Lista el ultimo contenedor creado
+**********************************************************************
+
+docker ps -l
+
+## Lista todos los contenedores
+**********************************************************************
+
+docker ps -a
+
+## Lista solo los "numeric IDs" de los contenedores
+**********************************************************************
+
+docker ps -a -q
+
+docker stop my_webserver_play
+
+curl localhost:9091/test.txt
+
+docker start my_webserver_play
+
+curl localhost:9091/test.txt
+
+docker restart my_webserver_play
+
+
+####################################################################
+################## Pseudoterminal ##################
+####################################################################
+
+## Abro un seudoterminal
+**********************************************************************
+
+$ docker ps
+
+$ docker inspect --format='{{.State.PID}}' <CONTAINER NAME>
+
+$ su -
+
+# nsenter -m -u -n -i -p -t <PID>
+
+# ls /
+
+# hostid
+
+## Las carpetas y storage que estan configurados
+**********************************************************************
+
+# mount | grep fedora-root
+
+## Nameserver
+**********************************************************************
+
+# cat /etc/resolv.conf
+
+# exit
+
+####################################################################
+################## checking out a running countainer ##################
+####################################################################
+
+## Revisar que contenedores estan corriendo
+
+docker ps
+
+## Muestra la configuracion de un contenedor y como fue ejecutado
+
+docker inspect <CONTAINER ID>
+
+docker inspect <CONTAINER ID> | less
+
+## Si necesitas un dato especifico del contenedor 
+
+docker inspect --format='{{.NetworkSettings.IPAddress}}' my_webserver
+
+ping <ip>
+
+nmap <ip>
+
+## Muestra el puente que esta configurado en el host con docker y el contenedor
+
+docker inspect --format='{{.NetworkSettings.Bridge}}' my_webserver
+
+## Muestra los puertos abiertos que tiene el contenedor
+
+docker inspect --format='{{.NetworkSettings.Ports}}' my_webserver
+
+## Muestra el mapeo de carpetas con el host
+
+docker inspect --format='{{.HostConfig.Binds}}' my_webserver
+
+## El codigo del proceso asociado al contenedor
+
+docker inspect --format='{{.State.Pid}}' my_webserver
+
+ps -ef | grep <PID>
+
+####################################################################
+################## Pseudoterminal ##################
+####################################################################
+
+# docker run --rm -i -t fedora whereis man
+
+Se puede usar cualquiera de los dos siempre y cuando el contenedor este 
+configurado para usarlos.
+**********************************************************************
+SHELL = [
+			"/bin/bash",
+			"/bin/sh"
+		]
+
+# docker exec -i -t <CONTAINER ID> SHELL #by ID
+
+# docker exec -i -t <CONTAINER NAME> SHELL #by Name
+
+####################################################################
+################## docker logs ##################
+####################################################################
+
+docker run 	--rm -v /dev/log:/dev/log fedora:latest \
+			logger "Sending container massages to the host"
+
+journalctl | grep 'Sending'
+
+journalctl -u docker.service
+
+####################################################################
+################## docker run [OPTIONS] IMAGE [COMMAND] ##################
+####################################################################
+
+mkdir /var/web_data
+
+echo "The web server is operational" > /var/web_data/test.txt
+
+docker run 	-d -p 9090:9099 --name="my_webserver" \
+			-w /opt -v /var/web_data:/opt fedora:latest \
+			/usr/bin/python -m SimpleHTTPServer 9099
+
+docker run --rm -ti fedora bash
+
+whereis python
+
+docker run 	-d -p 9090:9099 --name="my_webserver" \
+			-w /opt -v /var/web_data:/opt fedora:latest \
+			/usr/bin/python3.6 -m http.server 9099
+
+docker ps
+
+netstat -tupln | grep 9090
+
+curl localhost:9090/test.txt
+
+echo "Hola Mundo" > /var/web_data/test.txt
+
+curl localhost:9090/test.txt
+
+####################################################################
+################## docker registry local ##################
+####################################################################
+
+$ docker pull oraclelinux:7.4
+
+$ docker tag oraclelinux:7.4 localhost:5000/my-oraclelinux:7.4
+
+$ docker push localhost:5000/my-oraclelinux:7.4
+
+$ docker images
+
+$ docker image remove oraclelinux:7.4
+
+$ docker image remove localhost:5000/my-oraclelinux:7.4
+
+$ docker images
+
+## Open in browser
+
+http://localhost:5000/v2/_catalog
+
+$ docker pull localhost:5000/my-oraclelinux:7.4
+
+$ docker images
+
+####################################################################
+################## docker pull images ##################
+####################################################################
+
+docker pull fedora
+
+docker images
+
+docker pull ubuntu
+
+docker images
+
+## See information abaout the images
+
+docker run --rm -ti fedora bash
+
+whereis python
+
+####################################################################
+################## Docker registry installation Oracle Linux ##################
+####################################################################
+
+
+##https://docs.docker.com/registry/deploying/
+
+$ docker run -d -p 5000:5000 --restart=always --name registry registry:latest

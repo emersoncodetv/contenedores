@@ -1,0 +1,48 @@
+CENTOS
+->>>>>>
+ESTE FUNCIONO
+https://severalnines.com/blog/installing-kubernetes-cluster-minions-centos7-manage-pods-services
+
+https://github.com/kubernetes/dashboard
+
+REVISAR
+https://www.youtube.com/watch?v=b_fOIELGMDY
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++ Ejecutar comandos en cada nodo
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+$ nano ~/.kube/config
+
+$ kubectl config set-cluster demo-cluster --server=http://192.168.56.104:8080
+$ kubectl config set-context demo-system --cluster=demo-cluster
+$ kubectl config use-context demo-system
+
+$ nano ~/.kube/config
+
+$ kubectl get nodes
+
+su -
+
+# nano /etc/kubernetes/apiserver
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# default admission control policies
+# KUBE_ADMISSION_CONTROL="--admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota"
+
+KUBE_ADMISSION_CONTROL=""
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# nano /etc/kubernetes/kubelet 
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Comentar la siguiente linea
+# KUBELET_POD_INFRA_CONTAINER="--pod-infra-containerimage=...
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# reboot
+
+->>>>>>>>>>>>>>>>>>>>>>>>>>>
+Work
+How to deploy a NodeJS app to Kubernetes
+https://seanmcgary.com/posts/how-to-deploy-a-nodejs-app-to-kubernetes
