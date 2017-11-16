@@ -91,7 +91,7 @@ $ nano deployment.yaml
 ~~~
 
 >#### Copiar y pegar lo siguiente
->~~~sh
+~~~sh
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -130,7 +130,7 @@ $ nano service.yaml
 ~~~
 
 >#### Copiar y pegar lo siguiente
->~~~sh
+~~~sh
 apiVersion: v1
 kind: Service
 metadata:
@@ -168,7 +168,7 @@ $ nano mysql.yaml
 ~~~
 
 >#### Copiar y pegar lo siguiente
->~~~sh
+~~~sh
 apiVersion: v1
 kind: Pod
 metadata:
@@ -206,7 +206,7 @@ $ nano mysql-service.yaml
 ~~~
 
 >#### Copiar y pegar lo siguiente
->~~~sh
+~~~sh
 apiVersion: v1
 kind: Service
 metadata:
