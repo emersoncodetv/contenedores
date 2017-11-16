@@ -91,7 +91,7 @@ $ nano deployment.yaml
 ~~~
 
 >#### Copiar y pegar lo siguiente
->```
+>~~~sh
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -110,7 +110,7 @@ spec:
         ports:
         - containerPort: 8000
 # vim: set ts=2 expandtab!:
-```
+~~~
 
 ~~~sh
 $ kubectl create -f deployment.yaml
@@ -130,7 +130,7 @@ $ nano service.yaml
 ~~~
 
 >#### Copiar y pegar lo siguiente
->```
+>~~~sh
 apiVersion: v1
 kind: Service
 metadata:
@@ -145,7 +145,7 @@ spec:
     protocol: TCP
     nodePort: 30061
   type: LoadBalancer
-```
+~~~
 
 ~~~sh
 $ kubectl create -f service.yaml
@@ -168,7 +168,7 @@ $ nano mysql.yaml
 ~~~
 
 >#### Copiar y pegar lo siguiente
->```
+>~~~sh
 apiVersion: v1
 kind: Pod
 metadata:
@@ -189,7 +189,7 @@ spec:
       ports:
         - containerPort: 3306
           name: mysql
-```
+~~~
 
 ~~~sh
 $ kubectl create -f mysql.yaml
@@ -206,7 +206,7 @@ $ nano mysql-service.yaml
 ~~~
 
 >#### Copiar y pegar lo siguiente
->```
+>~~~sh
 apiVersion: v1
 kind: Service
 metadata:
@@ -222,7 +222,7 @@ spec:
   # label keys and values that must match in order to receive traffic for this service
   selector:
     name: mysql 
-```
+~~~
 
 ~~~sh
 $ kubectl create -f mysql-service.yaml
