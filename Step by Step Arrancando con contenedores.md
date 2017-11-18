@@ -4,7 +4,7 @@
 
 >* COMANDOS:
 >	* `docker pull <IMAGE NAME> : se contecta al repositorio publico de docker y descarga la imagen que se le pide.`
->	* `docker images : lista todas las imagenes que se han descargado de registro publico o privado.`
+>	* `docker images : lista todas las imagenes que se han descargado del registro publico o privado.`
 
 ~~~sh
 $ docker pull fedora
