@@ -530,6 +530,83 @@ atomic run rhel7/sadc
 docker exec -it sadc sar
 ~~~
 
+## Yendo mas allá de Docker container
+
+### Explorando la seguridad avanzada de los contenedores
+
+#### Asegurando contenedores
+
+* Inicie con repositorios de confianza para construir contenedores
+* Mantenga al día las actualizaciones de seguridad
+* Reconstruir las imágenes es la forma de actualizarlas, no actualice los contenedores vivos
+* Usar imágenes firmadas y verificar firmas
+* Escáner de contenido: OpenSCAP and Black Duck escáneres
+* Container Catalog (Oracle, Docker Certificado, entre otros)
+* Limitar los privilegios al host cuando no son requeridos
+
+### Operating System Seguridad de contenedores
+
+* Acceso al Kernel mediante *read-only filesystems*
+* Limitar acceso y el control a las capacidades de Linux
+* Separación solida de los namespaces (file system, process table, network interfaces, inter-process communications)
+* Security Enhanced Linux (SELinux) control de acceso obligatorio
+* CGroups rastrea/limita los recursos que cada contenedor consume:
+	- memory, disk I/O¡, network resources
+* Separar network namespaces (Redes definidas por software)
+* Plugins para el almacenamiento: NFS, AWS EBS, GCE Persistent Disk
+
+### Openshift container security
+
+* OpenShift Container Registry: Roles basados en el control de acceso
+* Puede agregar metadata con vulnerabilidades/licencias información de cumplimiento
+* Entornos de construcción segura
+* Secretos durante la construcciones no incluidas en las imágenes (credenciales)
+	- usar las credenciales, password o permisos requeridos durante la creación de la imagen
+	- No dejar en la imagen ninguna información importante com credenciales, passwords o permisos especiales.
+* imágenes en capas: Agregar capas para asegurar las imágenes base
+* Despliegue de contenedores:
+	- Automatizar implementaciones basadas en políticas
+	- Desencadenantes para reconstruir y remplazar imágenes
+* Consola web segura (TLS, X.509 API, Project Quotas)
+
+### Examinando interesantes archivos de Dockerfile 
+
+Firefox container with vnc 
+
+### Ejecutar contenedores sin Docker
+
+#### Necesidad creciente de nuevas herramientas para contenedores
+
+* Open Container Initiative [https://www.opencontainers.org/](https://www.opencontainers.org/)
+	- Estándares para los formatos de las imágenes de los contenedores y ejecución 
+	- Fomentar el desarrollo de herramientas estándar
+* Inicia contenedores sin docker (e.g.: etcd, flannel)
+* Construir contenedores sin el daemon corriendo
+* Menos agrupamiento de funciones en herramientas monolíticas individuales 
+
+#### Otras herramientas para trabajar con contenedores
+
+* runc - Ejecutar contenedores sin el `docker service`
+* skopeo - Inspecciona, copia imágenes y capas
+* buildah - Construir imágenes
+* atomic - Administra Atomic Hosts y contenedores especiales
+	- Mejorar y retroceder *rollback* Atomic Host
+	- Instalar contenedores
+	- Establece políticas de firmas y verificar firmas
+
+### ¿Qué es lo que sigue para los contenedores?
+
+#### ¿Qué es lo que sigue para los contenedores?
+
+- Continuamente se mueve la industria hacia los microservicios
+- Enfasis en integración continua y despliegue
+- Mas integración con herramientas de desarrollo
+- Bloques de construcción estandarizados: 
+	* Images
+	* Services
+	* Templates
+- Continua redefinición de herramientas administrativas de desarrollo
+
 ## Docker logs
 
 ~~~sh
