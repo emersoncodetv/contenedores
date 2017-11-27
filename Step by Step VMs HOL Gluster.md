@@ -65,9 +65,9 @@ echo "/dev/sdb1 /data/gluster ext4 defaults 0 0" | tee --append /etc/fstab
 
 ## Configure GlusterFS on CentOS 7:
 
-Before creating a volume, we need to create trusted storage pool by adding gluster2.itzgeek.local. You can run GlusterFS configuration commands on any one server in the cluster will execute the same command on all other servers.
+Before creating a volume, we need to create trusted storage pool by adding gluster2.local. You can run GlusterFS configuration commands on any one server in the cluster will execute the same command on all other servers.
 
-Here I will run all GlusterFS commands in gluster1.itzgeek.local node.
+Here I will run all GlusterFS commands in gluster1.local node.
 
 ```sh
 gluster peer probe gluster2.local
@@ -129,11 +129,11 @@ mount -t glusterfs gluster1.local:/gv0 /mnt/glusterfs
 WARNING: getfattr not found, certain checks will be skipped..
 Mount failed. Please check the log file for more details.
 ```
-Consider adding Firewall rules for client machine (client.itzgeek.local) to allow connections on the gluster nodes (gluster1.itzgeek.local and gluster2.itzgeek.local). Run the below command on both gluster nodes.
+Consider adding Firewall rules for client machine (client.local) to allow connections on the gluster nodes (gluster1.local and gluster2.local). Run the below command on both gluster nodes.
 ```sh
 firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="clientip" accept'
 ```
-You can also use gluster2.itzgeek.local instead of gluster1.itzgeek.com in the above command.
+You can also use gluster2.local instead of gluster1.com in the above command.
 
 Verify the mounted GlusterFS filesystem.
 
@@ -205,7 +205,7 @@ Now test the availability of the files, you would see files that we created rece
 root@client:~# ls -l /mnt/glusterfs/
 ```
 
->You may experience slowness in executing commands on the mounted GlusterFS filesystem is due to GlusterFS switchover to gluster2.itzgeek.local when the client.itzgeek.local can not reach gluster1.itzgeek.local.
+>You may experience slowness in executing commands on the mounted GlusterFS filesystem is due to GlusterFS switchover to gluster2.local when the client.local can not reach gluster1.local.
 
 Create some more files on the GlusterFS filesystem to check the replication.
 
@@ -220,9 +220,9 @@ Verify the files count.
 root@client:~# ls -l /mnt/glusterfs/
 ```
 
-Since the gluster1 is down, all your data’s are now written on gluster2.itzgeek.local due to High-Availability. Now power on the node1 (gluster1.itzgeek.local).
+Since the gluster1 is down, all your data’s are now written on gluster2.local due to High-Availability. Now power on the node1 (gluster1.local).
 
-Check the /mnt of the gluster1.itzgeekk.local; you should see all four files in the directory, this confirms the replication is working as expected.
+Check the /mnt of the gluster1.local; you should see all four files in the directory, this confirms the replication is working as expected.
 
 ```sh
 [root@gluster1 ~]# mount -t glusterfs gluster1.local:/gv0 /mnt
