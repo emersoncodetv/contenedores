@@ -7,6 +7,18 @@ http://www.itzgeek.com/how-tos/linux/centos-how-tos/install-and-configure-gluste
 --->
 
 ```sh
+hostnamectl set-hostname 'gluster1'
+exec bash
+```
+
+```sh
+hostnamectl set-hostname 'gluster2'
+exec bash
+```
+
+Agregado en cada uno de los nodos y en cada uno de los clientes
+
+```sh
 nano /etc/hosts
 ```
 ```txt
@@ -17,11 +29,26 @@ nano /etc/hosts
 
 ### Instalación para centOS nodos gluster
 
+Oracle linux
+
+```sh
+$ su -
+nano /etc/yum.repos.d/Gluster.repo
+
+[gluster312]
+name=Gluster 3.12
+baseurl=http://mirror.centos.org/centos/7/storage/$basearch/gluster-3.12/
+gpgcheck=0
+enabled=1
+```
+
+CentOS
+
 ```sh
 yum install -y centos-release-gluster
 ```
 
-Install GlusterFS:
+Install GlusterFS CentOS Oracle Linux:
 
 ```sh
 yum install -y glusterfs-server
@@ -230,6 +257,24 @@ Check the /mnt of the gluster1.local; you should see all four files in the direc
 [root@gluster1 ~]# ls -l /mnt/
 ```
 
+Gluster 1
+
+```sh
+$ su -
+nano /etc/fstab
+```
+>Copiar y pegar el siguiente texto
+>>gluster1.local:/gv0 /mnt glusterfs  defaults,_netdev 0 0
+
+
+Gluster 2 
+
+```sh
+$ su -
+nano /etc/fstab
+```
+>Copiar y pegar el siguiente texto
+>>gluster2.local:/gv0 /mnt glusterfs  defaults,_netdev 0 0
 
 
 
