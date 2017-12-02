@@ -150,8 +150,14 @@ $ yum -y install flannel kubernetes
 .2. Configure etcd server for flannel service. Update the following line inside /etc/sysconfig/flanneld to connect to the respective master:
 
 ```sh
-FLANNEL_ETCD="http://192.168.56.104:2379"
+nano /etc/sysconfig/flanneld
 ```
+
+>#### Reemplazar el siguiente texto
+>>FLANNEL_ETCD_ENDPOINTS="http://127.0.0.1:2379"
+>#### Por este nuevo
+>>\# FLANNEL_ETCD_ENDPOINTS="http://127.0.0.1:2379"
+>>FLANNEL_ETCD="http://192.168.56.104:2379"
 
 .3. Configure Kubernetes default config at /etc/kubernetes/config, ensure you update the KUBE_MASTER value to connect to the Kubernetes master API server:
 
@@ -183,7 +189,31 @@ KUBELET_API_SERVER="--api_servers=http://192.168.56.104:8080"
 KUBELET_ARGS=""
 ```
 
-.5. Start and enable kube-proxy, kubelet, docker and flanneld services:
+.5. Configurar el apiserver y kubelet.
+
+```
+$ su -
+nano /etc/kubernetes/apiserver
+```
+
+>#### Reemplazar el siguiente texto
+>>\# default admission control policies <br>
+>>KUBE\_ADMISSION\_CONTROL="--admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota"
+>#### Por este nuevo
+>>\# default admission control policies <br>
+>>\# KUBE\_ADMISSION\_CONTROL="--admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota"<br>
+>>KUBE\_ADMISSION\_CONTROL=""
+
+```sh
+nano /etc/kubernetes/kubelet
+```
+
+>#### Reemplazar el siguiente texto
+>>KUBELET\_POD\_INFRA\_CONTAINER="--pod-infra-containerimage=...
+>#### Por este nuevo
+>>\# KUBELET\_POD\_INFRA\_CONTAINER="--pod-infra-containerimage=...
+
+.6. Start and enable kube-proxy, kubelet, docker and flanneld services:
 
 ```sh
 $ for SERVICES in kube-proxy kubelet docker flanneld; do
@@ -193,7 +223,7 @@ $ for SERVICES in kube-proxy kubelet docker flanneld; do
 done
 ```
 
-.6. On each minion, you should notice that you will have two new interfaces added, docker0 and flannel0. You should get different range of IP addresses on flannel0 interface on each minion, similar to below:
+.7. On each minion, you should notice that you will have two new interfaces added, docker0 and flannel0. You should get different range of IP addresses on flannel0 interface on each minion, similar to below:
 
 **minion1:**
 
@@ -209,7 +239,7 @@ $ ip a | grep flannel | grep inet
 inet 172.17.38.0/16 scope global flannel0
 ```
 
-.7. Now login to Kubernetes master node and verify the minions’ status:
+.8. Now login to Kubernetes master node and verify the minions’ status:
 
 ```sh
 $ kubectl get nodes
@@ -231,27 +261,62 @@ $ kubectl config use-context demo-system
 
 $ nano ~/.kube/config
 $ kubectl get nodes
-$ su -
-nano /etc/kubernetes/apiserver56.104
 ```
 
->#### Reemplazar el siguiente texto
->>\# default admission control policies <br>
->>KUBE\_ADMISSION\_CONTROL="--admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota"
->#### Por este nuevo
->>\# default admission control policies <br>
->>\# KUBE\_ADMISSION\_CONTROL="--admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota"<br>
->>KUBE\_ADMISSION\_CONTROL=""
+>Si ocurre algun error en la creacion de pods o deployment reiniciar todos los workers
+
+```sh
+reboot
+```
+
+### Agregando un nuevo nodo
+
+Ejecutamos lo siguiente en uno de los nodos
+
+```sh
+$ for SERVICES in kube-proxy kubelet docker flanneld; do
+    systemctl stop $SERVICES
+    systemctl desable $SERVICES    
+    systemctl status $SERVICES
+done
+```
+
+Copiamos el nodo 
+
+Montamos ese nuevo nodo
+
+Configuramos la red con la nueva ip
+192.168.56.107
+
+Establecemos un nuevo nombre al host
+
+```sh
+hostnamectl set-hostname 'K8S-minion03'
+exec bash
+```
+
+.4. Configure kubelet service inside /etc/kubernetes/kubelet as below: <br>
+
+**minion3**:
 
 ```sh
 nano /etc/kubernetes/kubelet
 ```
 
->#### Reemplazar el siguiente texto
->>KUBELET\_POD\_INFRA\_CONTAINER="--pod-infra-containerimage=...
->#### Por este nuevo
->>\# KUBELET\_POD\_INFRA\_CONTAINER="--pod-infra-containerimage=...
+```sh
+KUBELET_ADDRESS="--address=0.0.0.0"
+KUBELET_PORT="--port=10250"
+# change the hostname to this host’s IP address
+KUBELET_HOSTNAME="--hostname_override=192.168.56.107"
+KUBELET_API_SERVER="--api_servers=http://192.168.56.104:8080"
+KUBELET_ARGS=""
+```
+
 
 ```sh
-reboot
+$ for SERVICES in kube-proxy kubelet docker flanneld; do
+    systemctl restart $SERVICES
+    systemctl enable $SERVICES
+    systemctl status $SERVICES
+done
 ```
