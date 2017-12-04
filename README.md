@@ -8,9 +8,9 @@
 
 [Step by Step Arrancando con contenedores](https://github.com/emerballen/contenedores/blob/master/Step%20by%20Step%20Arrancando%20con%20contenedores.md)
 
-[Kobernetes Basic](https://github.com/emerballen/contenedores/blob/master/Step%20by%20Step%20Kobernetes%20Basic.md)
+[Kubernetes Basic](https://github.com/emerballen/contenedores/blob/master/Step%20by%20Step%20Kobernetes%20Basic.md)
 
-[Kobernetes Intermedio](https://github.com/emerballen/contenedores/blob/master/Step%20by%20Step%20Kobernetes%20Intermedio.md)
+[Kubernetes Intermedio](https://github.com/emerballen/contenedores/blob/master/Step%20by%20Step%20Kobernetes%20Intermedio.md)
 
 #### Matriz de estado
 
