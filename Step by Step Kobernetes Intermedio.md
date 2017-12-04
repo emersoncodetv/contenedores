@@ -1,39 +1,71 @@
-# Ravello y Kubernetes
+# HOL Kubernetes Intermedio
+## 1. Revisar la sincronización de gluster
 
-## Worker 3
+### Abrir la Terminal del K8sWorker-3
+***
 
-mkdir /mnt/glusterfs/glusterfs/appsdotwar
+```sh
+# Accedemos como root
+$ su -
 
+# Nos ubicamos en el siguiente directorio /mnt/glusterfs/glusterfs/appsdotwar
 cd /mnt/glusterfs/glusterfs/appsdotwar
 
-wget http://www.oracle.com/webfolder/technetwork/tutorials/obe/fmw/wls/12c/03-DeployApps/files/benefits.war
+# Listamos todos los archivos que hay en el directorio
+ls -lrt
 
-chmod 777 benefits.war 
+# Creamos un archivo binario en el directorio
+touch FileAval
+```
+
+### Abrir la Terminal del K8sWorker-2
+***
+
+```sh
+# Accedemos como root
+$ su -
+
+# Nos ubicamos en el siguiente directorio /mnt/glusterfs/glusterfs/appsdotwar
+cd /mnt/glusterfs/glusterfs/appsdotwar
+
+# Listamos todos los archivos que hay en el directorio
+ls -lrt
+```
+
+## 2. Probando docker y el contenedor de weblogic
+
+### Abrir la Terminal del K8sWorker-3
+***
+
+```sh
+docker ps
 
 docker run -d -p 7001:7001 -v /mnt/glusterfs/glusterfs/appsdotwar:/u01/oracle/host emerballen/weblogicapp:app1
- 
-<!---
-docker run -d -p 7002:7002 -v /home/oracle:/u01/oracle/host emerballen/weblogicapp:app2v1
---->
+```
 
-http://k8sworker3-k8sdevaval17nov303-rx8rnvoc.srv.ravcloud.com:7001/benefits/
+>##### Punto de control
 
+```sh
 docker ps
 
 docker stop <CONTAINER ID>
 
 docker rm <CONTAINER ID>
+```
 
-## Master Kubernetes
+## 3. Jugando con Kubernetes
 
->#### Copiar y pegar lo siguiente
+### Abrir la Terminal del Master de Kubernetes
+***
 
 ```sh
-$ mkdir kubernetesFiles
 $ cd kubernetesFiles/
-$ pwd
-## /home/centos/kubernetesFiles
+
+$ ls -lrt
 ```
+
+>##### Punto de control
+
 ```sh
 $ nano persistentVolume.yaml
 ```
@@ -68,6 +100,9 @@ spec:
     requests:
       storage: 1Gi
 ```
+
+### Creando un deployment en Kubernetes con dos Weblogic y una base de datos
+***
 
 ```sh
 $ nano deployment1.yaml
@@ -118,10 +153,9 @@ $ kubectl create -f deployment1.yaml
 $ kubectl get nodes 
 $ kubectl get deployments
 $ kubectl get pods 
-$ kubectl get endpoint
 
 $ kubectl describe deployment appsplusdb 
-$ kubectl describe pod >TAB 
+$ kubectl describe pods <POD NAME>
 
 $ kubectl delete deployment appsplusdb 
 ```
