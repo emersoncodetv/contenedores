@@ -20,8 +20,8 @@
 | Step by Step VM HOL Kubernetes  			| ●              | ●              | -              |
 | Step by Step VMs HOL Gluster 				| ●              | ●              | -              |
 | Step by Step Arrancando con contenedores  | ●              | ●              | -              |
-| Kobernetes Basic							| ●              | ●              | -              |
-| Kobernetes Intermedio							| ●              | ●              | -              |
+| Kubernetes Basico							| ●              | ●              | -              |
+| Kubernetes Intermedio							| ●              | ●              | -              |
 
 Key:
 
