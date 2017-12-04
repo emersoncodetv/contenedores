@@ -64,11 +64,10 @@ $ cd kubernetesFiles/
 $ ls -lrt
 ```
 
->##### Punto de control
-
 ```sh
 $ nano persistentVolume.yaml
 ```
+>##### Punto de control
 
 ```sh
 kind: PersistentVolume
