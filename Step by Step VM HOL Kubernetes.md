@@ -43,7 +43,7 @@ cp -r firefox /opt/
 ln -sf /opt/firefox/firefox /usr/bin/firefox
 ```
 
-# Prerequisitos
+## Prerequisitos
 
 ![](https://s3-us-west-2.amazonaws.com/public-files-blog/Kubernetes+Demo.png)
 
@@ -134,7 +134,8 @@ KUBE_API_PORT="--port=8080"
 KUBELET_PORT="--kubelet_port=10250"
 KUBE_ETCD_SERVERS="--etcd_servers=http://127.0.0.1:2379"
 KUBE_SERVICE_ADDRESSES="--service-cluster-ip-range=10.254.0.0/16"
-KUBE_ADMISSION_CONTROL="--admission_control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ResourceQuota"
+# KUBE_ADMISSION_CONTROL="--admission_control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ResourceQuota"
+KUBE_ADMISSION_CONTROL=""
 KUBE_API_ARGS=""
 ```
 
@@ -180,7 +181,7 @@ nano /etc/sysconfig/flanneld
 >#### Reemplazar el siguiente texto
 >>FLANNEL_ETCD_ENDPOINTS="http://127.0.0.1:2379"
 >#### Por este nuevo
->>\# FLANNEL_ETCD_ENDPOINTS="http://127.0.0.1:2379"
+>>\# FLANNEL_ETCD_ENDPOINTS="http://127.0.0.1:2379"<br>
 >>FLANNEL_ETCD="http://192.168.56.104:2379"
 
 .3. Configure Kubernetes default config at /etc/kubernetes/config, ensure you update the KUBE_MASTER value to connect to the Kubernetes master API server:
@@ -199,6 +200,7 @@ KUBELET_PORT="--port=10250"
 # change the hostname to this host’s IP address
 KUBELET_HOSTNAME="--hostname_override=192.168.56.105"
 KUBELET_API_SERVER="--api_servers=http://192.168.56.104:8080"
+# KUBELET_POD_INFRA_CONTAINER="--pod-infra-containerimage=...
 KUBELET_ARGS=""
 ```
 
@@ -210,6 +212,7 @@ KUBELET_PORT="--port=10250"
 # change the hostname to this host’s IP address
 KUBELET_HOSTNAME="--hostname_override=192.168.56.106"
 KUBELET_API_SERVER="--api_servers=http://192.168.56.104:8080"
+# KUBELET_POD_INFRA_CONTAINER="--pod-infra-containerimage=...
 KUBELET_ARGS=""
 ```
 
@@ -227,15 +230,6 @@ nano /etc/kubernetes/apiserver
 >>\# default admission control policies <br>
 >>\# KUBE\_ADMISSION\_CONTROL="--admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota"<br>
 >>KUBE\_ADMISSION\_CONTROL=""
-
-```sh
-nano /etc/kubernetes/kubelet
-```
-
->#### Reemplazar el siguiente texto
->>KUBELET\_POD\_INFRA\_CONTAINER="--pod-infra-containerimage=...
->#### Por este nuevo
->>\# KUBELET\_POD\_INFRA\_CONTAINER="--pod-infra-containerimage=...
 
 .6. Start and enable kube-proxy, kubelet, docker and flanneld services:
 
@@ -274,7 +268,7 @@ NAME             LABELS                                  STATUS
 
 You are now set. The Kubernetes cluster is now configured and running. We can start to play around with pods.
 
-## Ejecutar los siguientes comandos en cada minion
+### Ejecutar los siguientes comandos en cada minion
 
 ```sh
 $ nano ~/.kube/config
@@ -293,7 +287,7 @@ $ kubectl get nodes
 reboot
 ```
 
-### Agregando un nuevo nodo
+## Agregando un nuevo nodo
 
 Ejecutamos lo siguiente en uno de los nodos
 
