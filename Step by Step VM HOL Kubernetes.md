@@ -75,7 +75,7 @@ nano /etc/sysconfig/selinux
 >#### Reemplazar el siguiente texto
 >>SELINUX=enforcing
 >#### Por este nuevo
->>#SELINUX=enforcing
+>>#SELINUX=enforcing <br>
 >>SELINUX=permissive
 
 Instalar NTP y este seguro que esta habilitado y ejecutandoce.
