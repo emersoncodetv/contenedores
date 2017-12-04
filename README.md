@@ -10,6 +10,7 @@
 
 [Kobernetes Basic](https://github.com/emerballen/contenedores/blob/master/Step%20by%20Step%20Kobernetes%20Basic.md)
 
+[Kobernetes Intermedio](https://github.com/emerballen/contenedores/blob/master/Step%20by%20Step%20Kobernetes%20Intermedio.md)
 
 #### Matriz de estado
 
@@ -20,6 +21,7 @@
 | Step by Step VMs HOL Gluster 				| ●              | ●              | -              |
 | Step by Step Arrancando con contenedores  | ●              | ●              | -              |
 | Kobernetes Basic							| ●              | ●              | -              |
+| Kobernetes Intermedio							| ●              | ●              | -              |
 
 Key:
 
