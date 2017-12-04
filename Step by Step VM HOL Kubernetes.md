@@ -54,6 +54,30 @@ $ systemctl stop firewalld
 $ systemctl disable firewalld
 ```
 
+SELinux - Tener en cuenta
+
+Security-Enhanced Linux: Un kernel de Linux que integra SELinux impone políticas de control de acceso obligatorias que confinan los programas de usuario y los servidores del sistema, el acceso a archivos y recursos de red.
+To put SELinux into enforcing mode:
+
+sestatus | grep -i mode
+
+setenforce 1
+
+Deshabilitelo para evitar confluctos con las reglas del Docker iptables. Para deshabilitar SELinux debe estar en permissive mode: 
+
+```sh
+$ su -
+setenforce 0
+sestatus | grep -i mode
+
+nano /etc/sysconfig/selinux
+```
+>#### Reemplazar el siguiente texto
+>>SELINUX=enforcing
+>#### Por este nuevo
+>>#SELINUX=enforcing
+>>SELINUX=permissive
+
 Instalar NTP y este seguro que esta habilitado y ejecutandoce.
 
 ```sh
