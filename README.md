@@ -1,4 +1,12 @@
 ## README
+***
+
+> #### Grupo de discusión y ayuda de resolucion de problemas
+>> ##### discord.gg/75rNs56
+
+***
+
+#### Step by Step Tutoriales
 
 [Step by Step VM HOL Docker](https://github.com/emerballen/contenedores/blob/master/Step%20by%20Step%20VM%20HOL%20Docker.md)
 
