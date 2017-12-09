@@ -23,10 +23,10 @@ Las activiades de este repositorio seran notificadas en el canal de texto de dis
 
 | HOL                						| Comandos 		 | Documentación  | Estado General |
 |--------------------						|----------------|----------------|----------------|
-| Step by Step VM HOL Docker  				| ●              | ●              | -              |
-| Step by Step VM HOL Kubernetes  			| ●              | ●              | -              |
-| Step by Step VMs HOL Gluster 				| ●              | ●              | -              |
-| Step by Step Arrancando con contenedores  | ●              | ●              | -              |
+| Step by Step VM HOL Docker  				| +              | -              | +              |
+| Step by Step VM HOL Kubernetes  			| +              | -              | +              |
+| Step by Step VMs HOL Gluster 				| +              | -              | +              |
+| Step by Step Arrancando con contenedores  | ●              | -              | -              |
 | Kubernetes Basico							| ●              | ●              | -              |
 | Kubernetes Intermedio							| ●              | ●              | -              |
 
