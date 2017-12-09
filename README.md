@@ -1,9 +1,6 @@
 ## README
-***
-
 > #### Grupo de discusión y ayuda de resolucion de problemas
->> ##### [discord.gg/75rNs56](discord.gg/75rNs56)
-
+>> ##### [discord.gg/75rNs56](https://discord.gg/75rNs56)
 ***
 
 #### Step by Step Tutoriales
