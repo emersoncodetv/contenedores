@@ -3,6 +3,8 @@
 >> ##### [discord.gg/75rNs56](https://discord.gg/75rNs56)
 ***
 
+Las activiades de este repositorio seran notificadas en el canal de texto de discord en docker-ama.
+
 #### Step by Step Tutoriales
 
 [Step by Step VM HOL Docker](https://github.com/emerballen/contenedores/blob/master/Step%20by%20Step%20VM%20HOL%20Docker.md)
